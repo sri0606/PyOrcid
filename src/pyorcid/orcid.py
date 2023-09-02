@@ -1,55 +1,51 @@
 import requests
 from urllib.parse import urlencode
-
+from dotenv import load_dotenv
+import os
 
 class Orcid():
-    def __init__(self,client_id,client_secret,redirect_uri) -> None:
-        self._redirect_uri = redirect_uri
-        self._access_token = ""
-        self._get_access_token(client_id,client_secret)
+    def __init__(self,orcid_id) -> None:
+        
+        if not self.__is_access_token_valid():
+             raise ValueError("Invalid access token! Please make sure you are authenticated by ORCID as developer.")
+       
+        self._orcid_id = orcid_id
         return
 
-    def _get_access_token(self,client_id,client_secret):
+    def __is_access_token_valid(self):
         '''
-        Send a request to Postman API for Orcid's OAuth 2.0 authorrization
+        Checks if the current access token is valid
         '''
-       # Set the necessary parameters
-        redirect_uri = self._redirect_uri
-        auth_url_endpoint = "https://orcid.org/oauth/authorize"
-        token_url = "https://orcid.org/oauth/token"
+        # Load environment variables from .env
+        load_dotenv()
 
-        # Step 1: Redirect the user to the authorization URL
-        params = {
-            'client_id': client_id,
-            'response_type': 'code',
-            'redirect_uri': redirect_uri,
-            'scope': '/authenticate'
-        }
-        auth_url = auth_url_endpoint + '?' + urlencode(params)
-        print(f'Please go to this URL and authorize the app: {auth_url}')
+        # Access the environment variable
+        access_token = os.getenv("ORCID_ACCESS_TOKEN")
 
-        # Step 2: Get the authorization code from the redirect URL
-        redirect_response = input('Paste the full redirect URL here: ')
-        code = redirect_response.split('code=')[1].split('&')[0]
-
-        # Step 3: Exchange the authorization code for an access token
-        data = {
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'code': code,
-            'grant_type': 'authorization_code',
-            'redirect_uri': redirect_uri
+        if access_token=="":
+            raise ValueError("Empty value for access token! Please make sure you are authenticated by ORCID as developer.")
+        # Make a test request to the API using the token
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
         }
 
-        response = requests.post(token_url, data=data)
-        self._access_token = response.json().get('access_token')
-        return None
+        # Replace with the appropriate test endpoint from the API
+        test_api_url = "https://pub.orcid.org/v3.0/{self._orcid_id}"
 
-    def read_record(self,orcid_id):
+        response = requests.get(test_api_url, headers=headers)
+
+        if response.status_code == 200:
+            # The request was successful, and the token is likely valid
+            return True
+        else:
+            # The request failed, indicating that the token may have expired or is invalid
+            return False
+        
+    def __read_section(self,section="record"):
         '''
-        Reads the Orcid record
-        orcid_id: Orcid ID of the member
-        return  : a dictionary of summary view of the full ORCID record 
+        Reads the section of a Orcid member Profile
+        return  : a dictionary of summary view of the section of ORCID data 
         '''
         # Set the headers with the access token for authentication
         headers = {
@@ -58,7 +54,7 @@ class Orcid():
         }
 
         # # Specify the ORCID record endpoint for the desired ORCID iD
-        api_url = f'https://pub.orcid.org/v3.0/{orcid_id}/record'
+        api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}/{section}'
 
         # Make a GET request to retrieve the ORCID record
         response = requests.get(api_url, headers=headers)
@@ -71,148 +67,154 @@ class Orcid():
         else:
             # Handle the case where the request failed
             print("Failed to retrieve ORCID data. Status code:", response.status_code)
+            return None
 
+    def record(self):
+        '''
+        Reads the Orcid record
+        return  : a dictionary of summary view of the full ORCID record 
+        '''
+        return self.__read_section("record")
     
-    def person(self,orcid_id):
+    def person(self):
         '''
         Read biographical section of the ORCID record, including through /researcher-urls below
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
+        return self.__read_section("person") 
     
-    def address(self,orcid_id):
+    def address(self):
         '''
         The researcher's countries or regions
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def email(self,orcid_id):
+        return self.__read_section("address")  
+    
+    def email(self):
         '''
         The email address(es) associated with the record
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def external_identifiers(self,orcid_id):
+        return self.__read_section("email") 
+    
+    def external_identifiers(self):
         '''
         Linked external identifiers in other systems
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def keywords(self,orcid_id):
+        return self.__read_section("external-identifiers") 
+    
+    def keywords(self):
         '''
         Keywords related to the researcher and their work
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def other_names(self,orcid_id):
+        return self.__read_section("keywords") 
+     
+    def other_names(self):
         '''
         Other names by which the researcher is know
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def personal_details(self,orcid_id):
+        return self.__read_section("other-names") 
+    
+    def personal_details(self):
         '''
         Personal details: the researcher's name, credit (published) name, and biography
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def researcher_urls(self,orcid_id):
+        return self.__read_section("personal-details") 
+    
+    def researcher_urls(self):
         '''
         Links to the researcher‚s personal or profile pages
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def activities(self,orcid_id):
+        return self.__read_section("researcher-urls") 
+    
+    def activities(self):
         '''
         Summary of the activities section of the ORCID record, including through /works below.
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def educations(self,orcid_id):
+        return self.__read_section("activities") 
+    
+    def educations(self):
         '''
         Education affiliations
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def employments(self,orcid_id):
+        return self.__read_section("educations") 
+    
+    def employments(self):
         '''
         Employment affiliations
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def fundings(self,orcid_id):
+        return self.__read_section("employments") 
+    
+    def fundings(self):
         '''
         Summary of funding activities
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def peer_reviews(self,orcid_id):
+        return self.__read_section("fundings") 
+    
+    def peer_reviews(self):
         '''
         Summary of peer review activities
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def works(self,orcid_id):
+        return self.__read_section("peer-reviews") 
+    
+    def works(self):
         '''
         Summary of research works
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def research_resources (self,orcid_id):
+        return self.__read_section("works") 
+    
+    def research_resources (self):
         '''
         Summary of research resources 
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def services(self,orcid_id):
+        return self.__read_section("research-resources") 
+    
+    def services(self):
         '''
         Summary of services 
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def qualifications(self,orcid_id):
+        return self.__read_section("services") 
+    
+    def qualifications(self):
         '''
         Summary of qualifications 
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def memberships(self,orcid_id):
+        return self.__read_section("qualifications") 
+    
+    def memberships(self):
         '''
         Summary of memberships 
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def distinctions(self,orcid_id):
+        return self.__read_section("memberships") 
+    
+    def distinctions(self):
         '''
         Summary of distinctions 
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-    def invited_positions(self,orcid_id):
+        return self.__read_section("distinctions") 
+    
+    def invited_positions(self):
         '''
         Summary of invited positions
-        orcid_id: Orcid ID of the member
         return  :
         '''
-        return 
-   
+        return self.__read_section("invited-positions") 
+    
+    
 
