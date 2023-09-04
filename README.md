@@ -1,5 +1,10 @@
 # PyOrcid: An API client for ORCID API
 
+<a href="https://www.python.org/" class="button">Python3</a>
+<a href="https://pypi.org/project/python-dotenv/" class="button">dotenv</a>
+<a href="https://docs.python.org/3/library/urllib.html" class="button">urllib</a>
+<a href="https://docs.python-requests.org/en/master/" class="button">requests</a>
+
 **Overview**
 
 PyOrcid is a Python library and API client designed to simplify interactions with the ORCID API. ORCID (Open Researcher and Contributor ID) is a nonprofit organization that provides unique identifiers to researchers, ensuring their work is accurately attributed and discoverable. PyOrcid enables developers to seamlessly integrate ORCID functionality into their software, allowing users to collect, track, and sync their publication materials, research activities, and other related information.
@@ -29,6 +34,7 @@ Next:
 from pyorcid import OrcidAuthentication
 # Load environment variables from .env
 OrcidAuthentication(client_id="APP-xxxxxxxx", client_secret="xx-xx-xxxx-xxx", redirect_uri="https://github.com/user")
+```
 
 By executing this code, you will be redirected to your URI with a **code**. Copy and paste the full URL in the terminal input prompt. Then, you will obtain an **access_token** which will be auto-saved in `.env` file along with other credentials.
 
@@ -44,3 +50,4 @@ orcid.__dir__()
 works_data = orcid.works()
 for key, value in fundings_data.items():
     print(key, value)
+```
