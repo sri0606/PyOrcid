@@ -6,15 +6,15 @@
 [![requests](https://img.shields.io/badge/requests-%233776AB.svg?style=flat-square&logo=python&logoColor=white)](https://docs.python-requests.org/en/master/)
 
 
-**Overview**
+## Overview
 
 PyOrcid is a Python library and API client designed to simplify interactions with the ORCID API. ORCID (Open Researcher and Contributor ID) is a nonprofit organization that provides unique identifiers to researchers, ensuring their work is accurately attributed and discoverable. PyOrcid enables developers to seamlessly integrate ORCID functionality into their software, allowing users to collect, track, and sync their publication materials, research activities, and other related information.
 
-**Official ORCID documentation**
+## Official ORCID documentation
 
 Check out the methods, scopes, and examples mentioned in [official documentation here](https://info.orcid.org/documentation/).
 
-**Developer Authentication**
+## Developer Authentication
 
 To access the ORCID API, you need to authenticate your ORCID ID. 
 
@@ -39,7 +39,7 @@ OrcidAuthentication(client_id="APP-xxxxxxxx", client_secret="xx-xx-xxxx-xxx", re
 
 By executing this code, you will be redirected to your URI with a **code**. Copy and paste the full URL in the terminal input prompt. Then, you will obtain an **access_token** which will be auto-saved in `.env` file along with other credentials.
 
-**After Authentication**
+## After Authentication
 
 There are various methods available in the package. You will need ORCID IDs of the researchers/users to access their ORCID profiles. For example:
 
