@@ -18,7 +18,7 @@ Check out the methods, scopes, and examples mentioned in [official documentation
 
 To access the ORCID API, you need to authenticate your ORCID ID. 
 
-1. **Create an ORCID Account:** If you don't already have an ORCID account, you'll need to create one. Visit the ORCID website and sign up for an account.
+1. **Create an ORCID Account:** If you don't already have an ORCID account, you'll need to create one. Visit the ORCID website and [sign up for an account](https://orcid.org/register).
 
 2. **Access Developer Tools:** Once you've logged into your ORCID account, navigate to "Your Profile." From there, select "Developer Tools."
 
