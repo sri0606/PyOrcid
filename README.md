@@ -54,6 +54,6 @@ orcid.__dir__()
 ```
 ```python
 works_data = orcid.works()
-for key, value in fundings_data.items():
+for key, value in works_data.items():
     print(key, value)
 ```
