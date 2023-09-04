@@ -1,2 +1,2 @@
-from pyorcid.orcid import Orcid
-from pyorcid.orcid_authentication import OrcidAuthentication
+from .orcid import Orcid
+from .orcid_authentication import OrcidAuthentication

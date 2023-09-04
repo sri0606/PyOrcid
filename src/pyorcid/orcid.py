@@ -6,10 +6,10 @@ import os
 class Orcid():
     def __init__(self,orcid_id) -> None:
         
+        self._orcid_id = orcid_id
         if not self.__is_access_token_valid():
              raise ValueError("Invalid access token! Please make sure you are authenticated by ORCID as developer.")
-       
-        self._orcid_id = orcid_id
+
         return
 
     def __is_access_token_valid(self):
@@ -21,7 +21,6 @@ class Orcid():
 
         # Access the environment variable
         access_token = os.getenv("ORCID_ACCESS_TOKEN")
-
         if access_token=="":
             raise ValueError("Empty value for access token! Please make sure you are authenticated by ORCID as developer.")
         # Make a test request to the API using the token
@@ -31,25 +30,31 @@ class Orcid():
         }
 
         # Replace with the appropriate test endpoint from the API
-        test_api_url = "https://pub.orcid.org/v3.0/{self._orcid_id}"
+        test_api_url = f"https://pub.orcid.org/v3.0/{self._orcid_id}"
 
         response = requests.get(test_api_url, headers=headers)
-
-        if response.status_code == 200:
+        if response.status_code == 404:
             # The request was successful, and the token is likely valid
-            return True
+            return False
         else:
             # The request failed, indicating that the token may have expired or is invalid
-            return False
+            return True
         
     def __read_section(self,section="record"):
         '''
         Reads the section of a Orcid member Profile
         return  : a dictionary of summary view of the section of ORCID data 
         '''
+
+        # Load environment variables from .env
+        load_dotenv()
+
+        # Access the environment variable
+        access_token = os.getenv("ORCID_ACCESS_TOKEN")
+
         # Set the headers with the access token for authentication
         headers = {
-            'Authorization': f'Bearer {self._access_token}',
+            'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json'
         }
 
@@ -59,10 +64,10 @@ class Orcid():
         # Make a GET request to retrieve the ORCID record
         response = requests.get(api_url, headers=headers)
 
+        # The request was successful
+        data = response.json()
         # Check the response status code
         if response.status_code == 200:
-            # The request was successful
-            data = response.json()
             return data
         else:
             # Handle the case where the request failed
