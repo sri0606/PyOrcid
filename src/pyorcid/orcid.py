@@ -1,11 +1,16 @@
 import requests
-from urllib.parse import urlencode
 from dotenv import load_dotenv
 import os
 
 class Orcid():
+    '''
+    This is a wrapper class for ORCID API
+    '''
     def __init__(self,orcid_id) -> None:
-        
+        '''
+        Initialize orcid instance
+        orcid_id : Orcid ID of the user
+        '''
         self._orcid_id = orcid_id
         if not self.__is_access_token_valid():
              raise ValueError("Invalid access token! Please make sure you are authenticated by ORCID as developer.")
