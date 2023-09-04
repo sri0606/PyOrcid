@@ -1,9 +1,10 @@
 # PyOrcid: An API client for ORCID API
 
-<a href="https://www.python.org/" class="button">Python3</a>
-<a href="https://pypi.org/project/python-dotenv/" class="button">dotenv</a>
-<a href="https://docs.python.org/3/library/urllib.html" class="button">urllib</a>
-<a href="https://docs.python-requests.org/en/master/" class="button">requests</a>
+[![Python3](https://img.shields.io/badge/Python3-%233776AB.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![dotenv](https://img.shields.io/badge/dotenv-%230a9e0a.svg?style=flat-square)](https://pypi.org/project/python-dotenv/)
+[![urllib](https://img.shields.io/badge/urllib-%233776AB.svg?style=flat-square&logo=python&logoColor=white)](https://docs.python.org/3/library/urllib.html)
+[![requests](https://img.shields.io/badge/requests-%233776AB.svg?style=flat-square&logo=python&logoColor=white)](https://docs.python-requests.org/en/master/)
+
 
 **Overview**
 
@@ -44,9 +45,14 @@ There are various methods available in the package. You will need ORCID IDs of t
 
 ```python
 from pyorcid import Orcid
+
+#Orcid ID of the user
 orcid_id = 'xxxx-xxxx-xxxx-xxxx'
+#create an instance of the Orcid class
 orcid = Orcid(orcid_id=orcid_id)
 orcid.__dir__()
+```
+```python
 works_data = orcid.works()
 for key, value in fundings_data.items():
     print(key, value)
