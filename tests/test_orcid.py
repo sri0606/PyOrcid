@@ -1,9 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
 from src.pyorcid import Orcid
-import os
-
-orcid_access_token = os.environ("ORCID_ACCESS_TOKEN")
 
 class TestOrcid(unittest.TestCase):
 
