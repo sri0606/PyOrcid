@@ -11,7 +11,7 @@ class TestOrcid(unittest.TestCase):
         # Mock the request for access token validation
         mock_get.return_value.status_code = 404
         orc = Orcid(self.MY_ORCID_ID,is_test=True)
-        self.assertFalse(orc._Orcid_test_is_access_token_valid())
+        self.assertFalse(orc._Orcid__test_is_access_token_valid())
 
     # similar tests for access token validation scenarios
 
@@ -21,7 +21,7 @@ class TestOrcid(unittest.TestCase):
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"data": "section_data"}
         orc = Orcid(self.MY_ORCID_ID,is_test=True)
-        data = orc._Orcid_test_read_section("section_name")
+        data = orc._Orcid__test_read_section("section_name")
         self.assertEqual(data, {"data": "section_data"})
 
     # similar tests for other read_section scenarios
@@ -32,7 +32,7 @@ class TestOrcid(unittest.TestCase):
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"data": "full_record_data"}
         orc = Orcid(self.MY_ORCID_ID,is_test=True)
-        record = orc.test_record()
+        record = orc._Orcid__test_record()
         self.assertEqual(record, {"data": "full_record_data"})
 
     # Add other integration tests if needed
