@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
-from pyorcid import Orcid
+from src.pyorcid import Orcid
 
 class TestOrcid(unittest.TestCase):
 
