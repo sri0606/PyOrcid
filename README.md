@@ -4,6 +4,7 @@
 [![dotenv](https://img.shields.io/badge/dotenv-%230a9e0a.svg?style=flat-square)](https://pypi.org/project/python-dotenv/)
 [![urllib](https://img.shields.io/badge/urllib-%233776AB.svg?style=flat-square&logo=python&logoColor=white)](https://docs.python.org/3/library/urllib.html)
 [![requests](https://img.shields.io/badge/requests-%233776AB.svg?style=flat-square&logo=python&logoColor=white)](https://docs.python-requests.org/en/master/)
+![Tests](https://github.com/sri0606/PyOrcid/actions/workflows/tests.yml/badge.svg)
 
 
 ## Overview

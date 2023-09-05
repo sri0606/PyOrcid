@@ -14,7 +14,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      access_token: ${{ secrets.ORCID_ACCESS_TOKEN }}
+      ORCID_ACCESS_TOKEN: ${{ secrets.ORCID_ACCESS_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
