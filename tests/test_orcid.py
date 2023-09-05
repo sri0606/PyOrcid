@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import Mock, patch
 from src.pyorcid import Orcid
 
+
 class TestOrcid(unittest.TestCase):
 
     MY_ORCID_ID = "0009-0004-5301-6863"
