@@ -227,7 +227,7 @@ class Orcid():
         return self.__read_section("invited-positions") 
     
     ## THESE FUNCTIONS ARE FOR TESTING PURPOSES ##
-    def test__is_access_token_valid(self):
+    def test_is_access_token_valid(self):
         '''
         FOR TESTING PURPOSES ONLY
         Checks if the current access token is valid
@@ -253,7 +253,7 @@ class Orcid():
             # The request failed, indicating that the token may have expired or is invalid
             return True
         
-    def test__read_section(self,section="record"):
+    def test_read_section(self,section="record"):
         '''
         FOR TESTING PURPOSES ONLY
         Reads the section of a Orcid member Profile
