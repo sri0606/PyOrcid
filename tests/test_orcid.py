@@ -6,7 +6,7 @@ class TestOrcid(unittest.TestCase):
 
     MY_ORCID_ID = "0009-0004-5301-6863"
 
-    @patch('pyorcid.requests.get')
+    @patch('src.pyorcid.orcid.requests.get')
     def test_init_valid_orcid(self, mock_get):
         # Mock the request for access token validation
         mock_get.return_value.status_code = 404
@@ -15,7 +15,7 @@ class TestOrcid(unittest.TestCase):
 
     #  similar tests for other initialization scenarios
 
-    @patch('pyorcid.requests.get')
+    @patch('src.pyorcid.orcid.requests.get')
     def test_access_token_valid(self, mock_get):
         # Mock the request for access token validation
         mock_get.return_value.status_code = 404
@@ -24,7 +24,7 @@ class TestOrcid(unittest.TestCase):
 
     # similar tests for access token validation scenarios
 
-    @patch('pyorcid.requests.get')
+    @patch('src.pyorcid.orcid.requests.get')
     def test_read_section_successful(self, mock_get):
         # Mock the request for reading a section
         mock_get.return_value.status_code = 200
@@ -35,7 +35,7 @@ class TestOrcid(unittest.TestCase):
 
     # similar tests for other read_section scenarios
 
-    @patch('pyorcid.requests.get')
+    @patch('src.pyorcid.orcid.requests.get')
     def test_record_method(self, mock_get):
         # Mock the request for reading a section
         mock_get.return_value.status_code = 200
