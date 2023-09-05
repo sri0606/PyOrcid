@@ -226,5 +226,67 @@ class Orcid():
         '''
         return self.__read_section("invited-positions") 
     
-    
+    ## THESE FUNCTIONS ARE FOR TESTING PURPOSES ##
+    def test__is_access_token_valid(self):
+        '''
+        FOR TESTING PURPOSES ONLY
+        Checks if the current access token is valid
+        '''
+        # Access the environment variable from github secrets
+        access_token = os.environ["ORCID_ACCESS_TOKEN"]
+        if access_token=="":
+            raise ValueError("Empty value for access token! Please make sure you are authenticated by ORCID as developer.")
+        # Make a test request to the API using the token
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
 
+        # Replace with the appropriate test endpoint from the API
+        test_api_url = f"https://pub.orcid.org/v3.0/{self._orcid_id}"
+
+        response = requests.get(test_api_url, headers=headers)
+        if response.status_code == 404:
+            # The request was successful, and the token is likely valid
+            return False
+        else:
+            # The request failed, indicating that the token may have expired or is invalid
+            return True
+        
+    def test__read_section(self,section="record"):
+        '''
+        Reads the section of a Orcid member Profile
+        return  : a dictionary of summary view of the section of ORCID data 
+        '''
+
+        access_token = os.environ["ORCID_ACCESS_TOKEN"]
+
+        # Set the headers with the access token for authentication
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+
+        # # Specify the ORCID record endpoint for the desired ORCID iD
+        api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}/{section}'
+
+        # Make a GET request to retrieve the ORCID record
+        response = requests.get(api_url, headers=headers)
+
+        # The request was successful
+        data = response.json()
+        # Check the response status code
+        if response.status_code == 200:
+            return data
+        else:
+            # Handle the case where the request failed
+            print("Failed to retrieve ORCID data. Status code:", response.status_code)
+            return None
+
+    def test_record(self):
+        '''
+        Reads the Orcid record
+        return  : a dictionary of summary view of the full ORCID record 
+        '''
+        return self.test__read_section("record")
+    
