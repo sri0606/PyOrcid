@@ -12,8 +12,8 @@ repository = "https://github.com/sri0606/PyOrcid"
 [tool.poetry.dependencies]
 python = "^3.8"
 python-dotenv = "*"
-urllib3 = "*"
-requests = "*"
+urllib3 = "^1.26.7"
+requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.0"
