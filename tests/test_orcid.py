@@ -10,7 +10,7 @@ class TestOrcid(unittest.TestCase):
     def test_access_token_valid(self, mock_get):
         # Mock the request for access token validation
         mock_get.return_value.status_code = 404
-        orc = Orcid(self.MY_ORCID_ID)
+        orc = Orcid(self.MY_ORCID_ID,is_test=True)
         self.assertFalse(orc._Orcid_test_is_access_token_valid())
 
     # similar tests for access token validation scenarios
@@ -20,7 +20,7 @@ class TestOrcid(unittest.TestCase):
         # Mock the request for reading a section
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"data": "section_data"}
-        orc = Orcid(self.MY_ORCID_ID)
+        orc = Orcid(self.MY_ORCID_ID,is_test=True)
         data = orc._Orcid_test_read_section("section_name")
         self.assertEqual(data, {"data": "section_data"})
 
@@ -31,7 +31,7 @@ class TestOrcid(unittest.TestCase):
         # Mock the request for reading a section
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"data": "full_record_data"}
-        orc = Orcid(self.MY_ORCID_ID)
+        orc = Orcid(self.MY_ORCID_ID,is_test=True)
         record = orc.test_record()
         self.assertEqual(record, {"data": "full_record_data"})
 

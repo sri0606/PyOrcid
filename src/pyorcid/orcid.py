@@ -6,13 +6,13 @@ class Orcid():
     '''
     This is a wrapper class for ORCID API
     '''
-    def __init__(self,orcid_id) -> None:
+    def __init__(self,orcid_id, is_test = False) -> None:
         '''
         Initialize orcid instance
         orcid_id : Orcid ID of the user
         '''
         self._orcid_id = orcid_id
-        if not self.__is_access_token_valid():
+        if not self.__is_access_token_valid() and is_test==False:
              raise ValueError("Invalid access token! Please make sure you are authenticated by ORCID as developer.")
 
         return
