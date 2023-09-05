@@ -12,7 +12,7 @@ class Orcid():
         orcid_id : Orcid ID of the user
         '''
         self._orcid_id = orcid_id
-        if not self.__is_access_token_valid() and is_test==False:
+        if is_test==False and not self.__is_access_token_valid():
              raise ValueError("Invalid access token! Please make sure you are authenticated by ORCID as developer.")
 
         return
