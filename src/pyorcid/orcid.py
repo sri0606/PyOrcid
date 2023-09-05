@@ -234,6 +234,7 @@ class Orcid():
         '''
         # Access the environment variable from github secrets
         access_token = os.environ["ORCID_ACCESS_TOKEN"]
+        print(f"Access token for orcid is {access_token}")
         if access_token=="":
             raise ValueError("Empty value for access token! Please make sure you are authenticated by ORCID as developer.")
         # Make a test request to the API using the token
