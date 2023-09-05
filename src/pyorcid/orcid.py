@@ -255,6 +255,7 @@ class Orcid():
         
     def test__read_section(self,section="record"):
         '''
+        FOR TESTING PURPOSES ONLY
         Reads the section of a Orcid member Profile
         return  : a dictionary of summary view of the section of ORCID data 
         '''
@@ -285,6 +286,7 @@ class Orcid():
 
     def test_record(self):
         '''
+        FOR TESTING PURPOSES ONLY
         Reads the Orcid record
         return  : a dictionary of summary view of the full ORCID record 
         '''
