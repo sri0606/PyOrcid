@@ -6,13 +6,14 @@ class Orcid():
     '''
     This is a wrapper class for ORCID API
     '''
-    def __init__(self,orcid_id) -> None:
+    def __init__(self,orcid_id, state="public") -> None:
         '''
         Initialize orcid instance
         orcid_id : Orcid ID of the user
+        state  : Whether to use public or member API of ORCID
         '''
         self._orcid_id = orcid_id
-
+        self._state = state
         #For testing purposes (pytesting on github workflow)
         try:
             self.__test_is_access_token_valid()
@@ -67,9 +68,14 @@ class Orcid():
             'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json'
         }
+        api_url = ""
 
-        # # Specify the ORCID record endpoint for the desired ORCID iD
-        api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}/{section}'
+        if self._state == "public":
+            # Specify the ORCID record endpoint for the desired ORCID iD
+            api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}/{section}'
+            
+        elif self._state == "member":
+            api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}/{section}'
 
         # Make a GET request to retrieve the ORCID record
         response = requests.get(api_url, headers=headers)
@@ -77,7 +83,7 @@ class Orcid():
         # The request was successful
         data = response.json()
         # Check the response status code
-        if response.status_code == 200:
+        if response.status_code == 200 or data is not None:
             return data
         else:
             # Handle the case where the request failed
