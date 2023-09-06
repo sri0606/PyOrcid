@@ -6,14 +6,19 @@ class Orcid():
     '''
     This is a wrapper class for ORCID API
     '''
-    def __init__(self,orcid_id, is_test = False) -> None:
+    def __init__(self,orcid_id) -> None:
         '''
         Initialize orcid instance
         orcid_id : Orcid ID of the user
         '''
         self._orcid_id = orcid_id
-        if is_test==False and not self.__is_access_token_valid():
-             raise ValueError("Invalid access token! Please make sure you are authenticated by ORCID as developer.")
+
+        #For testing purposes (pytesting on github workflow)
+        try:
+            self.__test_is_access_token_valid()
+        except:
+            if not self.__is_access_token_valid():
+                raise ValueError("Invalid access token! Please make sure you are authenticated by ORCID as developer.")
 
         return
 
