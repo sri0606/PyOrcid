@@ -300,12 +300,16 @@ class Orcid():
             'Name': data['person']['name']['given-names']['value'],
             'Biography': data['person']['biography']['content'],
             'Emails': [email['email'] for email in data['person']['emails']['email']],
-            'Keywords': [keyword['content'] for keyword in data['person']['keywords']['keyword']],
+            'Research Tags (keywords)': [keyword['content'] for keyword in data['person']['keywords']['keyword']],
         }
 
         # Extract education details
         education_details = self.__extract_details(data, 'education')
         if education_details: extracted_data['Education'] = education_details
+
+        # Extract education details
+        qualification_details = self.__extract_details(data, 'qualification')
+        if qualification_details: extracted_data['Quaifications'] = qualification_details
 
         # Extract employment details
         employment_details = self.__extract_details(data, 'employment')
@@ -377,39 +381,27 @@ class Orcid():
         if output_file is not None:
             file_name = output_file
 
-        with open(file_name, 'w', encoding='utf-8') as markdown_file:
-            for key, value in data.items():
-                if key=="Name":
-                    markdown_file.write(f'<center><h1>{value}</h1></center>\n\n')
-                else:
-                    markdown_file.write(f'## {key}\n\n')
-                    if isinstance(value, list):
-                        for item in value:
-                            markdown_file.write('---')
-                            if isinstance(item, list):  # Check if item is a list
-                                for sublist in item:
-                                    if isinstance(sublist, dict):
-                                        for k, v in sublist.items():
-                                            markdown_file.write(f"**{k}**: {v}\n\n")
-                                    else:
-                                        markdown_file.write(f"{sublist}\n\n")
-                            elif isinstance(item, dict):
-                                for k, v in item.items():
-                                    if k == 'Education' or k == 'Employments' or k == 'Fundings' or k == 'Qualifications' or k == 'Professional Activities' or k == 'Works':
-                                        markdown_file.write(f'#### {k}\n\n')
-                                        for entry in v:
-                                            markdown_file.write(f'**Department:** {entry.get("Department", "N/A")}\n\n')
-                                            markdown_file.write(f'**Role:** {entry.get("Role", "N/A")}\n\n')
-                                            markdown_file.write(f'**Start Date:** {entry.get("start-date", "N/A")}\t\t\t\t')
-                                            markdown_file.write(f'**End Date:** {entry.get("end-date", "N/A")}\n\n')
-                                            markdown_file.write(f'**Organization:** {entry.get("organization", "N/A")}\t\t\t\t')
-                                            markdown_file.write(f'**Organization Address:** {entry.get("organization-address", "N/A")}\n\n')
-                                            markdown_file.write(f'**URL:** {entry.get("url", "N/A")}\n\n')
-                                    else:
-                                        markdown_file.write(f'**{k}:** {v}\n\n')
-                            markdown_file.write('\n')
+        with open(file_name, 'w', encoding='utf-8') as md_file:
+            for section, content in data.items():
+                md_file.write(f"## {section}\n\n")
+                
+                if isinstance(content, list):
+                    if content:
+                        if isinstance(content[0], dict):
+                            keys = content[0].keys()
+                            md_file.write("| " + " | ".join(keys) + " |\n")
+                            md_file.write("| " + " | ".join(["---"] * len(keys)) + " |\n")
+                            for item in content:
+                                md_file.write("| " + " | ".join(str(item[key]) for key in keys) + " |\n")
+                        else:
+                            for item in content:
+                                md_file.write("- " + f"{item}\n")
                     else:
-                        markdown_file.write(f'{value}\n\n')
+                        md_file.write("No data available.\n")
+                else:
+                    md_file.write(f"{content}\n")
+                
+                md_file.write("\n")
 
 
 
