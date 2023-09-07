@@ -40,10 +40,16 @@ class Orcid():
             'Content-Type': 'application/json'
         }
 
-        # Replace with the appropriate test endpoint from the API
-        test_api_url = f"https://pub.orcid.org/v3.0/{self._orcid_id}"
+        api_url = ""
 
-        response = requests.get(test_api_url, headers=headers)
+        if self._state == "public":
+            # Specify the ORCID record endpoint for the desired ORCID iD
+            api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}'
+            
+        elif self._state == "member":
+            api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}'
+
+        response = requests.get(api_url, headers=headers)
         if response.status_code == 404:
             # The request was successful, and the token is likely valid
             return False
@@ -72,7 +78,7 @@ class Orcid():
 
         if self._state == "public":
             # Specify the ORCID record endpoint for the desired ORCID iD
-            api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}/{section}'
+            api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}/{section}'
             
         elif self._state == "member":
             api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}/{section}'
@@ -237,6 +243,176 @@ class Orcid():
         '''
         return self.__read_section("invited-positions") 
     
+    def get_formatted_date(self,date_dict):
+        """
+        Formats a date dictionary into a string (e.g., "MM/YYYY") if all required keys are present and not None.
+
+        Args:
+            date_dict (dict): A dictionary containing 'year', 'month', and 'day' keys.
+
+        Returns:
+            str: The formatted date string or an empty string if any required key is missing or None.
+        """
+        if date_dict is not None:
+            year = date_dict.get('year', {}).get('value') if date_dict.get('year', {}) else None
+            month = date_dict.get('month', {}).get('value') if date_dict.get('month', {}) else None
+            day = date_dict.get('day', {}).get('value') if date_dict.get('day', {}) else None
+
+            # Check if all required keys are present and not None
+            if year is not None and month is not None:
+                return f"{month}/{year}"
+            elif year is not None:
+                return year
+            else:
+                return ''
+        else:
+            return ''
+
+
+    def __extract_details(self,data, key):
+        '''
+        helper function for record_summary()
+        '''
+        details = []
+        summary_key = key+'s'
+        for summary in data['activities-summary'][summary_key]['affiliation-group']:
+            for item in summary['summaries']:
+                key_summary = item[f'{key}-summary']
+                detail = {
+                    'Department': key_summary.get('department-name', '') if 'department-name' in key_summary else '',
+                    'Role': key_summary.get('role-title', '') if 'role-title' in key_summary else '',
+                    'start-date': self.get_formatted_date(key_summary.get('start-date', {})),
+                    'end-date': self.get_formatted_date(key_summary.get('end-date', {})),
+                    'organization': key_summary.get('organization', {}).get('name', '') if 'organization' in key_summary else '',
+                    'organization-address': ', '.join(filter(None, key_summary.get('organization', {}).get('address', {}).values())) if 'organization' in key_summary and 'address' in key_summary['organization'] else '',
+                    'url': key_summary.get('url', {}).get('value', '') if 'url' in key_summary else '',
+                    }
+                details.append(detail)
+        return details
+
+    def record_summary(self):
+        '''
+        A cleaner version of Orcid record
+        return  : a dictionary of summary view of the full ORCID record
+        '''
+        data = self.record()
+        extracted_data = {
+            'Name': data['person']['name']['given-names']['value'],
+            'Biography': data['person']['biography']['content'],
+            'Emails': [email['email'] for email in data['person']['emails']['email']],
+            'Keywords': [keyword['content'] for keyword in data['person']['keywords']['keyword']],
+        }
+
+        # Extract education details
+        education_details = self.__extract_details(data, 'education')
+        if education_details: extracted_data['Education'] = education_details
+
+        # Extract employment details
+        employment_details = self.__extract_details(data, 'employment')
+        if employment_details: extracted_data['Employment'] = employment_details
+
+        # Extract education details
+        distinction_details = self.__extract_details(data, 'distinction')
+        if distinction_details: extracted_data['Distinctions'] = distinction_details
+
+        # Extract employment details
+        Invited_details = self.__extract_details(data, 'invited-position')
+        if Invited_details: extracted_data['Invited Positions'] = Invited_details
+
+        # Extract education details
+        membership_details = self.__extract_details(data, 'membership')
+        if membership_details: extracted_data['Memberships'] = membership_details
+
+        # Extract service details
+        service_details = self.__extract_details(data, 'service')
+        if service_details: extracted_data['Service'] = service_details
+
+        # Extract funding details with start and end dates
+        funding_details = []
+        for funding_summary in data['activities-summary']['fundings']['group']:
+            for fund_summary in funding_summary['funding-summary']:
+                funding_detail = {
+                    'title': fund_summary['title']['title']['value'] if "title" in fund_summary and  "title" in fund_summary['title'] else '',
+                    'type': fund_summary['type'] if "type" in fund_summary else '', 
+                    'start-date': self.get_formatted_date(fund_summary.get('start-date', {})),
+                    'end-date': self.get_formatted_date(fund_summary.get('end-date', {})),
+                    'organization': fund_summary['organization']['name'] if "organization" in fund_summary and "name" in fund_summary['organization'] else '',
+                    'organization-address': ', '.join(filter(None, fund_summary['organization']['address'].values())) if 'organization' in fund_summary and 'address' in fund_summary['organization'] else '',
+                    'url': fund_summary['url']['value'] if 'url' in fund_summary else '',
+                }
+                funding_details.append(funding_detail)
+        extracted_data['Fundings'] = funding_details
+
+        work_details = []
+        for working_summary in data['activities-summary']['works']['group']:
+            for work_summary in working_summary['work-summary']:
+                work_detail = {
+                    'title': work_summary['title']['title']['value'] if "title" in work_summary and  "title" in work_summary['title'] else '',
+                    'type': work_summary['type'] if "type" in work_summary else '', 
+                    'publication-date': self.get_formatted_date(work_summary.get('publication-date', {})),
+                    'journal title': work_summary['journal-title']['value'] if "journal-title" in work_summary else '',
+                    'organization': work_summary['organization']['name'] if "organization" in work_summary and "name" in work_summary['organization'] else '',
+                    'organization-address': ', '.join(filter(None, work_summary['organization']['address'].values())) if 'organization' in work_summary and 'address' in work_summary['organization'] else '',
+                    'url': work_summary['url']['value'] if 'url' in work_summary else '',
+                }
+                work_details.append(work_detail)
+        extracted_data['Works'] = work_details
+
+
+        return extracted_data
+    
+    def generate_markdown_file(self, output_file=None):
+        '''
+        Generates a markdown file with the ORCID record summary
+        output_file  : the name of the output file
+        return  : None
+        '''
+
+        data = self.record_summary()
+        if 'Name' in data:
+            file_name = f"{data['Name']}.md"
+        else:
+            file_name = "output.md"  # Default file name if 'Name' field is missing
+
+        if output_file is not None:
+            file_name = output_file
+
+        with open(file_name, 'w', encoding='utf-8') as markdown_file:
+            for key, value in data.items():
+                if key=="Name":
+                    markdown_file.write(f'<center><h1>{value}</h1></center>\n\n')
+                else:
+                    markdown_file.write(f'## {key}\n\n')
+                    if isinstance(value, list):
+                        for item in value:
+                            markdown_file.write('---')
+                            if isinstance(item, list):  # Check if item is a list
+                                for sublist in item:
+                                    if isinstance(sublist, dict):
+                                        for k, v in sublist.items():
+                                            markdown_file.write(f"**{k}**: {v}\n\n")
+                                    else:
+                                        markdown_file.write(f"{sublist}\n\n")
+                            elif isinstance(item, dict):
+                                for k, v in item.items():
+                                    if k == 'Education' or k == 'Employments' or k == 'Fundings' or k == 'Qualifications' or k == 'Professional Activities' or k == 'Works':
+                                        markdown_file.write(f'#### {k}\n\n')
+                                        for entry in v:
+                                            markdown_file.write(f'**Department:** {entry.get("Department", "N/A")}\n\n')
+                                            markdown_file.write(f'**Role:** {entry.get("Role", "N/A")}\n\n')
+                                            markdown_file.write(f'**Start Date:** {entry.get("start-date", "N/A")}\t\t\t\t')
+                                            markdown_file.write(f'**End Date:** {entry.get("end-date", "N/A")}\n\n')
+                                            markdown_file.write(f'**Organization:** {entry.get("organization", "N/A")}\t\t\t\t')
+                                            markdown_file.write(f'**Organization Address:** {entry.get("organization-address", "N/A")}\n\n')
+                                            markdown_file.write(f'**URL:** {entry.get("url", "N/A")}\n\n')
+                                    else:
+                                        markdown_file.write(f'**{k}:** {v}\n\n')
+                            markdown_file.write('\n')
+                    else:
+                        markdown_file.write(f'{value}\n\n')
+
+
+
     ## THESE FUNCTIONS ARE FOR TESTING PURPOSES ##
     def __test_is_access_token_valid(self):
         '''
@@ -245,7 +421,6 @@ class Orcid():
         '''
         # Access the environment variable from github secrets
         access_token = os.environ["ORCID_ACCESS_TOKEN"]
-        print(f"Access token for orcid is {access_token}")
         if access_token=="":
             raise ValueError("Empty value for access token! Please make sure you are authenticated by ORCID as developer.")
         # Make a test request to the API using the token
@@ -254,10 +429,16 @@ class Orcid():
             'Content-Type': 'application/json'
         }
 
-        # Replace with the appropriate test endpoint from the API
-        test_api_url = f"https://pub.orcid.org/v3.0/{self._orcid_id}"
+        api_url = ""
 
-        response = requests.get(test_api_url, headers=headers)
+        if self._state == "public":
+            # Specify the ORCID record endpoint for the desired ORCID iD
+            api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}'
+            
+        elif self._state == "member":
+            api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}'
+
+        response = requests.get(api_url, headers=headers)
         if response.status_code == 404:
             # The request was successful, and the token is likely valid
             return False
@@ -280,8 +461,14 @@ class Orcid():
             'Content-Type': 'application/json'
         }
 
-        # # Specify the ORCID record endpoint for the desired ORCID iD
-        api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}/{section}'
+        api_url = ""
+
+        if self._state == "public":
+            # Specify the ORCID record endpoint for the desired ORCID iD
+            api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}/{section}'
+            
+        elif self._state == "member":
+            api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}/{section}'
 
         # Make a GET request to retrieve the ORCID record
         response = requests.get(api_url, headers=headers)

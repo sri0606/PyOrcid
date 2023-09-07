@@ -29,8 +29,8 @@ class OrcidAuthentication:
         '''
 
        # Set the necessary parameters
-        auth_url_endpoint = "https://orcid.org/oauth/authorize"
-        token_url = "https://orcid.org/oauth/token"
+        auth_url_endpoint = "https://sandbox.orcid.org/oauth/authorize"
+        token_url = "https://sandbox.orcid.org/oauth/token"
 
         # Step 1: Redirect the user to the authorization URL
         params = {
