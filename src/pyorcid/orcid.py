@@ -14,7 +14,7 @@ class Orcid():
         state  : Whether to use public or member API of ORCID
         '''
         self._orcid_id = orcid_id
-        self._access_token = orcid_access_token
+        self._orcid_access_token = orcid_access_token
         self._state = state
         #For testing purposes (pytesting on github workflow)
         try:
@@ -29,7 +29,7 @@ class Orcid():
         '''
         Checks if the current access token is valid
         '''
-        access_token = self.__access_token
+        access_token = self._orcid_access_token
 
         if access_token=="":
             raise ValueError("Empty value for access token! Please make sure you are authenticated by ORCID as developer.")
@@ -62,7 +62,7 @@ class Orcid():
         return  : a dictionary of summary view of the section of ORCID data 
         '''
         
-        access_token = self.__access_token
+        access_token = self._orcid_access_token
 
         # Set the headers with the access token for authentication
         headers = {
