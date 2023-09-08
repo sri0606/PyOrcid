@@ -43,12 +43,15 @@ class Orcid():
 
         if self._state == "public":
             # Specify the ORCID record endpoint for the desired ORCID iD
-            api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}'
-            
+            # api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
+            api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}'
+
         elif self._state == "member":
-            api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}'
+            # api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
+            api_url = f'https://api.orcid.org/v3.0/{self._orcid_id}'
 
         response = requests.get(api_url, headers=headers)
+
         if response.status_code == 404:
             # The request was successful, and the token is likely valid
             return False
@@ -73,10 +76,12 @@ class Orcid():
 
         if self._state == "public":
             # Specify the ORCID record endpoint for the desired ORCID iD
-            api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}/{section}'
-            
+            # api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
+            api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}'
+
         elif self._state == "member":
-            api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}/{section}'
+            # api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
+            api_url = f'https://api.orcid.org/v3.0/{self._orcid_id}'
 
         # Make a GET request to retrieve the ORCID record
         response = requests.get(api_url, headers=headers)

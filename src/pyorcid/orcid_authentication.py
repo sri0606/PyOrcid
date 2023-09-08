@@ -1,12 +1,22 @@
 import requests
 from urllib.parse import urlencode
-import os
-from dotenv import set_key
-
 
 class OrcidAuthentication:
+    '''
+    OrcidAuthentication is a class that handles the Orcid's OAuth 2.0 authorrization.
+    The Orcid's OAuth 2.0 authorrization is used to access the ORCID record of the user that gave access.
+    
+    '''
     def __init__(self, client_id, client_secret, redirect_uri):
-
+        '''
+        initializes the ORCidAuthentication
+        
+        Parameters
+        ----------
+        client_id : str : client id obtained from the registered application
+        client_secret : str : client secret obtained from the registered application
+        redirect_uri : str : redirect uri obtained from the registered application
+        '''
         # # Define the name of the .env file
         # env_file = ".env"
         # # Check if the .env file exists
@@ -32,8 +42,11 @@ class OrcidAuthentication:
         '''
 
        # Set the necessary parameters
-        auth_url_endpoint = "https://sandbox.orcid.org/oauth/authorize"
-        token_url = "https://sandbox.orcid.org/oauth/token"
+        # auth_url_endpoint = "https://sandbox.orcid.org/oauth/authorize"   #for testing
+        # token_url = "https://sandbox.orcid.org/oauth/token"               #for testing
+
+        auth_url_endpoint = "https://orcid.org/oauth/authorize"
+        token_url = "https://orcid.org/oauth/token"
 
         # Step 1: Redirect the user to the authorization URL
         params = {
