@@ -11,7 +11,7 @@ readme = "README.md"
 authors = ["Sriram Seelamneni <srirams0606@gmail.com>"]
 repository = "https://github.com/sri0606/PyOrcid"
 classifiers = [
-    "License  :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
 ]
