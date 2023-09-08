@@ -15,6 +15,10 @@ PyOrcid is a Python library and API client designed to simplify interactions wit
 
 Check out the methods, scopes, and examples mentioned in [official documentation here](https://info.orcid.org/documentation/).
 
+## QuickStart
+```python
+pip install PyOrcid
+```
 ## Developer Authentication : Registering your application
 
 To access the Public ORCID API, you need to register and authenticate your ORCID ID. 
