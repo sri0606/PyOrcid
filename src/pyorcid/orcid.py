@@ -101,9 +101,23 @@ class Orcid():
     def person(self):
         '''
         Read biographical section of the ORCID record, including through /researcher-urls below
-        return  :
+        return  : dict with name, biography, researcher-urls
         '''
-        return self.__read_section("person") 
+        data = self.__read_section("person") 
+        name = self.__get_value_from_keys(data,["name","given-names", "value"])
+        bio = self.__get_value_from_keys(data,["biography", "content"])
+        urls = []
+        if "researcher-urls" in data and "researcher-url" in data["researcher-urls"]:
+            researcher_urls = data["researcher-urls"]["researcher-url"]
+
+            if isinstance(researcher_urls, list):
+                for research_url in researcher_urls:
+                    url_name = self.__get_value_from_keys(research_url,["url-name"])
+                    url_value = self.__get_value_from_keys(research_url,["url","value"])
+                    if url_name or url_value:
+                        urls.append({"URL Name":url_name,"URL": url_value})
+
+        return {"Name":name,"Bio":bio,"URLs":urls}
     
     def address(self):
         '''
@@ -115,9 +129,13 @@ class Orcid():
     def email(self):
         '''
         The email address(es) associated with the record
-        return  :
+        return  : A tuple of list of emails and whole info tree related to email from orcid
         '''
-        return self.__read_section("email") 
+        data =  self.__read_section("email") 
+        emails = []
+        for email in data["email"]:
+            emails.append(email["email"])
+        return emails, data
     
     def external_identifiers(self):
         '''
@@ -129,9 +147,12 @@ class Orcid():
     def keywords(self):
         '''
         Keywords related to the researcher and their work
-        return  :
+        return  : A tuple of list of keywords and whole info tree related to keywords from orcid
         '''
-        return self.__read_section("keywords") 
+        data =  self.__read_section("keywords")
+        lis = [(value["content"]) for value in data["keyword"]] 
+
+        return (lis, data)
      
     def other_names(self):
         '''
@@ -164,23 +185,60 @@ class Orcid():
     def educations(self):
         '''
         Education affiliations
-        return  :
+        return  : a tuple containing the Education details and the whole info tree related to education from orcid
         '''
-        return self.__read_section("educations") 
+        data =  self.__read_section("educations") 
+
+        edu = self.__extract_details(data, "education")
+
+        return (edu,data)
     
     def employments(self):
         '''
         Employment affiliations
-        return  :
+        return  : a tuple containing the Employment details and the whole info tree related to employment from orcid
         '''
-        return self.__read_section("employments") 
+        data =  self.__read_section("employments") 
+
+        employments = self.__extract_details(data, "employment")
+
+        return (employments,data)
     
     def fundings(self):
         '''
         Summary of funding activities
-        return  :
+        return  : a tuple containing the Funding details and the whole info tree related to funding from orcid
         '''
-        return self.__read_section("fundings") 
+        funding_details = []
+
+        data = self.__read_section("fundings") 
+        group = data.get('group', [])
+
+        for funding_summary in group:
+            funding_summaries = funding_summary.get('funding-summary', [])
+
+            for fund_summary in funding_summaries:
+                title       = self.__get_value_from_keys(fund_summary,["title","title","value"])
+                fund_type   = self.__get_value_from_keys(fund_summary,["type"])
+                start_date  = self.get_formatted_date(fund_summary.get('start-date', {}))
+                end_date    = self.get_formatted_date(fund_summary.get('end-date', {}))
+                organization= self.__get_value_from_keys(fund_summary,["organization","name"])
+                organization_address = ', '.join(filter(None, self.__get_value_from_keys(fund_summary, ["organization", "address"]).values())) if self.__get_value_from_keys(fund_summary, ["organization", "address"]) is not None else ''
+                url         = self.__get_value_from_keys(fund_summary,["url","value"])
+
+                funding_detail = {
+                    'title': title,
+                    'type': fund_type,
+                    'start-date': start_date,
+                    'end-date': end_date,
+                    'organization': organization,
+                    'organization-address': organization_address,
+                    'url': url,
+                }
+
+                funding_details.append(funding_detail)
+
+        return (funding_details,data)
     
     def peer_reviews(self):
         '''
@@ -192,9 +250,38 @@ class Orcid():
     def works(self):
         '''
         Summary of research works
-        return  :
+        return  : a tuple containing the Work details and the whole info tree related to work from orcid
         '''
-        return self.__read_section("works") 
+        data =  self.__read_section("works") 
+        work_details = []
+
+        group = data.get('group', [])
+
+        for work_summary in group:
+            work_summaries = work_summary.get('work-summary', [])
+
+            for work_summary in work_summaries:
+                title           = self.__get_value_from_keys(work_summary,["title","title","value"])
+                work_type       = self.__get_value_from_keys(work_summary,["type"])
+                publication_date= self.get_formatted_date(work_summary.get('publication-date', {}))
+                journal_title   = self.__get_value_from_keys(work_summary,["journal-title","value"])
+                organization    = self.__get_value_from_keys(work_summary,["organization","name"])
+                organization_address = ', '.join(filter(None, self.__get_value_from_keys(work_summary, ["organization", "address"]).values())) if self.__get_value_from_keys(work_summary, ["organization", "address"]) is not None else ''
+                url             = self.__get_value_from_keys(work_summary,["url","value"])
+
+                work_detail = {
+                    'title': title,
+                    'type': work_type,
+                    'publication-date': publication_date,
+                    'journal title': journal_title,
+                    'organization': organization,
+                    'organization-address': organization_address,
+                    'url': url,
+                }
+
+                work_details.append(work_detail)
+
+        return (work_details,data)
     
     def research_resources (self):
         '''
@@ -206,37 +293,57 @@ class Orcid():
     def services(self):
         '''
         Summary of services 
-        return  :
+        return  : a tuple containing the Service details and the whole info tree related to service from orcid
         '''
-        return self.__read_section("services") 
+        data =  self.__read_section("services") 
+
+        services = self.__extract_details(data, "service")
+
+        return (services,data) 
     
     def qualifications(self):
         '''
         Summary of qualifications 
-        return  :
+        return  : a tuple containing the Qualification details and the whole info tree related to qualification from orcid
         '''
-        return self.__read_section("qualifications") 
+        data =  self.__read_section("qualifications") 
+
+        qualifications = self.__extract_details(data, "qualification")
+
+        return (qualifications,data)
     
     def memberships(self):
         '''
         Summary of memberships 
-        return  :
+        return  : a tuple containing the Membership details and the whole info tree related to membership from orcid
         '''
-        return self.__read_section("memberships") 
+        data =  self.__read_section("memberships") 
+
+        mem = self.__extract_details(data, "membership")
+
+        return (mem,data)
     
     def distinctions(self):
         '''
         Summary of distinctions 
-        return  :
+        return  : a tuple containing the distinction details and the whole info tree related to distinction from orcid
         '''
-        return self.__read_section("distinctions") 
+        data =  self.__read_section("distinctions") 
+
+        distinctions = self.__extract_details(data, "distinction")
+
+        return (distinctions,data)
     
     def invited_positions(self):
         '''
         Summary of invited positions
-        return  :
+        return  : a tuple containing the invited position details and the whole info tree related to invited position from orcid
         '''
-        return self.__read_section("invited-positions") 
+        data =  self.__read_section("invited-positions") 
+
+        invited_pos = self.__extract_details(data, "invited-position")
+
+        return (invited_pos,data)
     
     def get_formatted_date(self,date_dict):
         """
@@ -249,9 +356,9 @@ class Orcid():
             str: The formatted date string or an empty string if any required key is missing or None.
         """
         if date_dict is not None:
-            year = date_dict.get('year', {}).get('value') if date_dict.get('year', {}) else None
-            month = date_dict.get('month', {}).get('value') if date_dict.get('month', {}) else None
-            day = date_dict.get('day', {}).get('value') if date_dict.get('day', {}) else None
+            year = self.__get_value_from_keys(date_dict,["year","value"])
+            month = self.__get_value_from_keys(date_dict,["month","value"]) 
+            day = self.__get_value_from_keys(date_dict,["day","value"]) 
 
             # Check if all required keys are present and not None
             if year is not None and month is not None:
@@ -263,27 +370,81 @@ class Orcid():
         else:
             return ''
 
+    def __are_keys_accessible(self,json_obj, keys):
+        """
+        Check if all keys are accessible cumulatively in the JSON-like object.
 
-    def __extract_details(self,data, key):
+        Args:
+        json_obj (dict): The JSON-like object (dictionary).
+        keys (list): List of keys to check for accessibility.
+
+        Returns:
+        bool: True if all keys are accessible cumulatively, False otherwise.
+        """
+        current_obj = json_obj
+
+        for key in keys:
+            if isinstance(current_obj, dict) and key in current_obj:
+                current_obj = current_obj[key]
+            else:
+                return False
+
+        return True
+
+    def __get_value_from_keys(self,json_obj, keys):
+        """
+        Get the value associated with the last key in the list if all keys are accessible cumulatively.
+
+        Args:
+        json_obj (dict): The JSON-like object (dictionary).
+        keys (list): List of keys to check for accessibility and retrieve the final value.
+
+        Returns:
+        Any: The value associated with the last key if all keys are accessible cumulatively, or None if not accessible.
+        """
+        if self.__are_keys_accessible(json_obj, keys):
+            current_obj = json_obj
+            for key in keys:
+                current_obj = current_obj[key]
+            return current_obj
+        else:
+            return None
+        
+    def __extract_details(self, data, key):
         '''
-        helper function for record_summary()
+        Helper function for record_summary()
         '''
         details = []
-        summary_key = key+'s'
-        for summary in data['activities-summary'][summary_key]['affiliation-group']:
-            for item in summary['summaries']:
-                key_summary = item[f'{key}-summary']
+        
+        # Extract the 'affiliation-group' from the data
+        affiliation_group = data.get('affiliation-group', [])
+        
+        for group in affiliation_group:
+            summaries = group.get('summaries', [])
+            
+            for summary in summaries:
+                key_summary = summary.get(f'{key}-summary', {})
+                department  = self.__get_value_from_keys(key_summary,["department-name"])
+                role        = self.__get_value_from_keys(key_summary,["role-title"])
+                start_date  = self.get_formatted_date(key_summary.get('start-date', {}))
+                end_date    = self.get_formatted_date(key_summary.get('end-date', {}))
+                organization = self.__get_value_from_keys(key_summary,["organization","name"])
+                organization_address = ', '.join(filter(None, self.__get_value_from_keys(key_summary, ["organization", "address"]).values())) if self.__get_value_from_keys(key_summary, ["organization", "address"]) is not None else ''
+                url  = self.__get_value_from_keys(key_summary,["url","value"])
                 detail = {
-                    'Department': key_summary.get('department-name', '') if 'department-name' in key_summary else '',
-                    'Role': key_summary.get('role-title', '') if 'role-title' in key_summary else '',
-                    'start-date': self.get_formatted_date(key_summary.get('start-date', {})),
-                    'end-date': self.get_formatted_date(key_summary.get('end-date', {})),
-                    'organization': key_summary.get('organization', {}).get('name', '') if 'organization' in key_summary else '',
-                    'organization-address': ', '.join(filter(None, key_summary.get('organization', {}).get('address', {}).values())) if 'organization' in key_summary and 'address' in key_summary['organization'] else '',
-                    'url': key_summary.get('url', {}).get('value', '') if 'url' in key_summary else '',
-                    }
+                    'Department': department,
+                    'Role': role,
+                    'start-date': start_date,
+                    'end-date': end_date,
+                    'organization': organization,
+                    'organization-address': organization_address,
+                    'url': url,
+                }
+                
                 details.append(detail)
+        
         return details
+
 
     def record_summary(self):
         '''
@@ -292,71 +453,43 @@ class Orcid():
         '''
         data = self.record()
         extracted_data = {
-            'Name': data['person']['name']['given-names']['value'],
-            'Biography': data['person']['biography']['content'],
-            'Emails': [email['email'] for email in data['person']['emails']['email']],
-            'Research Tags (keywords)': [keyword['content'] for keyword in data['person']['keywords']['keyword']],
+            'Name': self.__get_value_from_keys(data,["person","name","given-names","value"]),
+            'Biography': self.__get_value_from_keys(data,["person","biography","content"]),
+            'Emails': [email['email'] for email in self.__get_value_from_keys(data,["person","emails","email"])],
+            'Research Tags (keywords)': [keyword['content'] for keyword in self.__get_value_from_keys(data,["person","keywords","keyword"])],
         }
 
         # Extract education details
-        education_details = self.__extract_details(data, 'education')
+        education_details = self.educations()[0]
         if education_details: extracted_data['Education'] = education_details
 
         # Extract education details
-        qualification_details = self.__extract_details(data, 'qualification')
+        qualification_details = self.qualifications()[0]
         if qualification_details: extracted_data['Quaifications'] = qualification_details
 
         # Extract employment details
-        employment_details = self.__extract_details(data, 'employment')
+        employment_details = self.employments()[0]
         if employment_details: extracted_data['Employment'] = employment_details
 
         # Extract education details
-        distinction_details = self.__extract_details(data, 'distinction')
+        distinction_details = self.distinctions()[0]
         if distinction_details: extracted_data['Distinctions'] = distinction_details
 
         # Extract employment details
-        Invited_details = self.__extract_details(data, 'invited-position')
+        Invited_details = self.invited_positions()[0]
         if Invited_details: extracted_data['Invited Positions'] = Invited_details
 
         # Extract education details
-        membership_details = self.__extract_details(data, 'membership')
+        membership_details = self.memberships()[0]
         if membership_details: extracted_data['Memberships'] = membership_details
 
         # Extract service details
-        service_details = self.__extract_details(data, 'service')
+        service_details = self.services()[0]
         if service_details: extracted_data['Service'] = service_details
 
         # Extract funding details with start and end dates
-        funding_details = []
-        for funding_summary in data['activities-summary']['fundings']['group']:
-            for fund_summary in funding_summary['funding-summary']:
-                funding_detail = {
-                    'title': fund_summary['title']['title']['value'] if "title" in fund_summary and  "title" in fund_summary['title'] else '',
-                    'type': fund_summary['type'] if "type" in fund_summary else '', 
-                    'start-date': self.get_formatted_date(fund_summary.get('start-date', {})),
-                    'end-date': self.get_formatted_date(fund_summary.get('end-date', {})),
-                    'organization': fund_summary['organization']['name'] if "organization" in fund_summary and "name" in fund_summary['organization'] else '',
-                    'organization-address': ', '.join(filter(None, fund_summary['organization']['address'].values())) if 'organization' in fund_summary and 'address' in fund_summary['organization'] else '',
-                    'url': fund_summary['url']['value'] if 'url' in fund_summary else '',
-                }
-                funding_details.append(funding_detail)
-        extracted_data['Fundings'] = funding_details
-
-        work_details = []
-        for working_summary in data['activities-summary']['works']['group']:
-            for work_summary in working_summary['work-summary']:
-                work_detail = {
-                    'title': work_summary['title']['title']['value'] if "title" in work_summary and  "title" in work_summary['title'] else '',
-                    'type': work_summary['type'] if "type" in work_summary else '', 
-                    'publication-date': self.get_formatted_date(work_summary.get('publication-date', {})),
-                    'journal title': work_summary['journal-title']['value'] if "journal-title" in work_summary else '',
-                    'organization': work_summary['organization']['name'] if "organization" in work_summary and "name" in work_summary['organization'] else '',
-                    'organization-address': ', '.join(filter(None, work_summary['organization']['address'].values())) if 'organization' in work_summary and 'address' in work_summary['organization'] else '',
-                    'url': work_summary['url']['value'] if 'url' in work_summary else '',
-                }
-                work_details.append(work_detail)
-        extracted_data['Works'] = work_details
-
+        extracted_data['Fundings'] = self.fundings()[0]
+        extracted_data['Works'] = self.works()[0]
 
         return extracted_data
     
