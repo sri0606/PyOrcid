@@ -6,20 +6,22 @@ class Orcid():
     '''
     This is a wrapper class for ORCID API
     '''
-    def __init__(self,orcid_id, state="public") -> None:
+    def __init__(self,orcid_id, orcid_access_token = " ", state="public") -> None:
         '''
         Initialize orcid instance
         orcid_id : Orcid ID of the user
+        orcid_access_token : Orcid access token obtained from the user with this orcid_id
         state  : Whether to use public or member API of ORCID
         '''
         self._orcid_id = orcid_id
+        self._access_token = orcid_access_token
         self._state = state
         #For testing purposes (pytesting on github workflow)
         try:
             self.__test_is_access_token_valid()
         except:
             if not self.__is_access_token_valid():
-                raise ValueError("Invalid access token! Please make sure you are authenticated by ORCID as developer.")
+                raise ValueError(f"Invalid access token! Please make sure the user with ORCID_ID:{orcid_id} has given access.")
 
         return
 
@@ -27,11 +29,8 @@ class Orcid():
         '''
         Checks if the current access token is valid
         '''
-        # Load environment variables from .env
-        load_dotenv()
+        access_token = self.__access_token
 
-        # Access the environment variable
-        access_token = os.getenv("ORCID_ACCESS_TOKEN")
         if access_token=="":
             raise ValueError("Empty value for access token! Please make sure you are authenticated by ORCID as developer.")
         # Make a test request to the API using the token
@@ -62,12 +61,8 @@ class Orcid():
         Reads the section of a Orcid member Profile
         return  : a dictionary of summary view of the section of ORCID data 
         '''
-
-        # Load environment variables from .env
-        load_dotenv()
-
-        # Access the environment variable
-        access_token = os.getenv("ORCID_ACCESS_TOKEN")
+        
+        access_token = self.__access_token
 
         # Set the headers with the access token for authentication
         headers = {
