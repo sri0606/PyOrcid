@@ -137,9 +137,7 @@ class Orcid():
         return  : A tuple of list of emails and whole info tree related to email from orcid
         '''
         data =  self.__read_section("email") 
-        emails = []
-        for email in data["email"]:
-            emails.append(email["email"])
+        emails = [email['email'] for email in self.__get_value_from_keys(data,["person","emails","email"])]
         return emails, data
     
     def external_identifiers(self):
