@@ -22,6 +22,9 @@ python = "^3.8"
 python-dotenv = "*"
 urllib3 = "^1.26.7"
 requests = "^2.26.0"
+json = "*"
+bs4 = "*"
+xmltojson = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.0"
