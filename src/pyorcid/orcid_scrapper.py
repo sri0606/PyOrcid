@@ -1,4 +1,4 @@
-from orcid import Orcid
+from .orcid import Orcid
 import requests
 import xmltojson
 import json
@@ -108,6 +108,3 @@ class OrcidScrapper(Orcid):
             details.append(detail)
         
         return details
-
-orcid = OrcidScrapper("0000-0003-0666-9883")
-print(orcid.generate_markdown_file("scrapper.md"))
