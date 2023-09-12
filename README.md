@@ -27,7 +27,7 @@ pip install PyOrcid
    You will need:
      - Developer's Application details (for authorization)
      - Orcid ID and corresponding access token of any researcher/user (for reading data)
-     - [Member API has extra authentication steps](https://info.orcid.org/documentation/integration-guide/registering-a-member-api-client/)
+     - Member API has extra authentication [steps](https://info.orcid.org/documentation/integration-guide/registering-a-member-api-client/)
 
 2. [Access through OrcidScrapper feature of PyOrcid](#access-through-orcidscrapper-feature-of-pyorcid)
 
