@@ -19,9 +19,30 @@ Check out the methods, scopes, and examples mentioned in [official documentation
 ```python
 pip install PyOrcid
 ```
-## Developer Authentication : Registering your application
+## Two ways to access public ORCID data
+1. [Access through Orcid API](#access-through-orcid-api)
 
-To access the Public ORCID API, you need to register and authenticate your ORCID ID. 
+   You can get read/update access if you use Orcid API (note: update feature available only with member API). This is the official and most trusted way to get access. There are public and member APIs.
+   
+   You will need:
+     - Developer's Application details (for authorization)
+     - Orcid ID and corresponding access token of any researcher/user (for reading data)
+     - [Member API has extra authentication steps](https://info.orcid.org/documentation/integration-guide/registering-a-member-api-client/)
+
+2. [Access through OrcidScrapper feature of PyOrcid](#access-through-orcidscrapper-feature-of-pyorcid)
+
+   You will only get to read the public Orcid records. This is the simplest and quickest way and doesn't require any authorization.
+   
+   You will need:
+     - Orcid ID of the reasearcher/user(for reading data)
+
+## Access through ORCID API
+### 1. Developer : Registering your application
+**Skip this step if you already have details of client ID, client secret and a redirect uri of authorized application**
+
+To access the Public ORCID API, you need to register and authenticate yourself by registering an applications. 
+
+If you need access to other people's orcid profile, register your application and pass along your application details to them (they need to execute [step 2](#2.after-registering-your-application) to give you access).
 
 1. **Create an ORCID Account:** If you don't already have an ORCID account, you'll need to create one. Visit the ORCID website and [sign up for an account](https://orcid.org/register).
 
@@ -37,7 +58,11 @@ More detailed steps mentioned [here](https://info.orcid.org/ufaqs/how-do-i-regis
 
 **To access the Member API, follow these [instructions](https://info.orcid.org/documentation/integration-guide/registering-a-member-api-client/).**
 
-## After registering your application
+### 2. After registering your application
+
+Users can now authorize your application. Pass the necessary details to them and let them execute follow command.
+
+By executing following code, the user will be redirected to orcid authorization page. Once the user authorizes your application, they will be redirected to "redirected_uri" you registered. After copy/pasting full URL of redirected page (contains special code), access token will be shown in output. Please save it for future use or else the application has to be authorized everytime.
 
 Get the `client_id`, `client_secret` and `redirect_uri` details from your [registered application](https://orcid.org/developer-tools).
 
@@ -54,7 +79,7 @@ OrcidAuthentication(client_id="APP-xxxxxxxx", client_secret="xx-xx-xxxx-xxx", re
 - It will ask the user whether to authorize your application.
 - After your application is authorized, user will be redirected to application's `redirect_uri` with a **code**. Copy and paste the full URL in the terminal input prompt. Then, you will obtain an **access_token**. Most probably, this token will not expire for around 20 years. So, make sure to save it, otherwise user have to re-authorize your application.
 
-## After Authentication
+### 3.After Authentication
 
 To utilize the functionalities offered by this package, you have access to a variety of methods. To get started, you'll require the ORCID IDs of the researchers or users whose data you intend to access, as well as the access token that is received after the user authorized your application to interact with their ORCID profiles. For instance
 
@@ -79,4 +104,23 @@ for key, value in works_data.items():
 
 # Generate a markdown file with the summary of various section's data
 orcid.generate_markdown_file(output_file = "md_generator_example.md")
+```
+
+## Access through OrcidScrapper feature of PyOrcid
+This is an alternative to Orcid API. You can only read the orcid profiles on public database. All you need is the Orcid ID of the researchers you wish to retrieve.
+OrcidScrapper can access all methods of Orcid class as it is inherited from it.
+
+```python
+from src import pyorcid
+orcid_id = '0000-0003-0666-9883'
+orcid = pyorcid.OrcidScrapper(orcid_id=orcid_id)
+orcid.__dir__()
+```
+```
+works_data = orcid.works()[0]
+for key, value in works_data.items():
+    print(key, value)
+
+orcid.record_summary()
+
 ```
