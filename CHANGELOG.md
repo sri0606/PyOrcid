@@ -1,6 +1,22 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.1.0] - 09/11/2023
+
+### Added
+- New feature to access Orcid profile data through orcid scrapper class
+
+### Changed
+- No changes
+
+### Deprecated
+- No changes
+
+### Removed
+- No changes
+
+### Fixed
+- Fixed the path to orcid section in red_section
 
 ## [1.0.1] - 09/08/2023
 
