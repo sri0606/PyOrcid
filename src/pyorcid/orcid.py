@@ -17,11 +17,12 @@ class Orcid():
         self._orcid_access_token = orcid_access_token
         self._state = state
         #For testing purposes (pytesting on github workflow)
-        try:
-            self.__test_is_access_token_valid()
-        except:
-            if not self.__is_access_token_valid():
-                raise ValueError(f"Invalid access token! Please make sure the user with ORCID_ID:{orcid_id} has given access.")
+        if orcid_access_token!=" ":
+            try:
+                self.__test_is_access_token_valid()
+            except:
+                if not self.__is_access_token_valid():
+                    raise ValueError(f"Invalid access token! Please make sure the user with ORCID_ID:{orcid_id} has given access.")
 
         return
 
@@ -77,11 +78,11 @@ class Orcid():
         if self._state == "public":
             # Specify the ORCID record endpoint for the desired ORCID iD
             # api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
-            api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}'
+            api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}/{section}'
 
         elif self._state == "member":
             # api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
-            api_url = f'https://api.orcid.org/v3.0/{self._orcid_id}'
+            api_url = f'https://api.orcid.org/v3.0/{self._orcid_id}/{section}'
 
         # Make a GET request to retrieve the ORCID record
         response = requests.get(api_url, headers=headers)
