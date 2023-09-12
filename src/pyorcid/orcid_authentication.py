@@ -57,9 +57,9 @@ class OrcidAuthentication:
         }
         auth_url = auth_url_endpoint + '?' + urlencode(params)
         print(f'Please go to this URL and authorize the app: {auth_url}')
-
+        print("\n")
         # Step 2: Get the authorization code from the redirect URL
-        redirect_response = input('Paste the full redirect URL here: ')
+        redirect_response = input('Paste the full URL of the page you were redirected to after authorizing: ')
         code = redirect_response.split('code=')[1].split('&')[0]
 
         # Step 3: Exchange the authorization code for an access token
