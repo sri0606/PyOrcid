@@ -7,38 +7,44 @@ class OrcidAuthentication:
     The Orcid's OAuth 2.0 authorrization is used to access the ORCID record of the user that gave access.
     
     '''
-    def __init__(self, client_id, client_secret, redirect_uri):
+    def __init__(self, client_id, client_secret, redirect_uri=""):
         '''
-        initializes the ORCidAuthentication
-        
+        initializes the ORCidAuthentication and gets the access token
         Parameters
         ----------
         client_id : str : client id obtained from the registered application
         client_secret : str : client secret obtained from the registered application
         redirect_uri : str : redirect uri obtained from the registered application
-        '''
-        # # Define the name of the .env file
-        # env_file = ".env"
-        # # Check if the .env file exists
-        # if not os.path.exists(env_file):
-        #     # Create the .env file with default or initial values
-        #     with open(env_file, "w") as file:
-        #         # Set initial values
-        #         file.write(f"ORCID_CLIENT_ID={client_id}\n")
-        #         file.write(f"ORCID_CLIENT_SECRET={client_secret}\n")
-        #         file.write(f"ORCID_REDIRECT_URI={redirect_uri}\n")
-        #         file.write("ORCID_ACCESS_TOKEN=\n")
 
-        access_token = self._get_access_token(client_id, client_secret, redirect_uri)
-        if access_token:
-            print("This is the access token. Please retain this to access the ORCID record of the user that gave access along with their ORCID_ID.")
-            print(access_token)
+        returns :
+        1) if redirect_uri id None/empty, returns access token for methods that doesn't need user authorization (eg., /read-public scope of public API)
+        2) else, returns access token for methods that needs user authorization (eg., Member API or /read-limited scope of public API)
+        '''
+        self.__client_id = client_id
+        self.__client_secret = client_secret
+        self.__redirect_uri = redirect_uri
         return None
     
-
-    def _get_access_token(self,client_id,client_secret,redirect_uri):
+    def get_access_token(self):
         '''
-        Send a request to Postman API for Orcid's OAuth 2.0 authorrization
+        Send a request to Orcid's OAuth 2.0 authorization
+        return : access token
+        '''
+        if self.__redirect_uri=="" or self.__redirect_uri is None:
+            access_token = self.__get_read_public_token()
+            
+        else:
+            if access_token:
+                access_token = self._get_access_token()
+                print("For future use, please ensure that access_token is retained to access the ORCID record of the user who granted access, including their ORCID_ID. Failure to do so require the user to re-authorize access.")
+
+        return access_token
+    
+    def _get_private_token(self):
+        '''
+        Send a request for Orcid's OAuth 2.0 authorrization
+        This method is used for Member API (read/update) and Public API's /read-limited scope
+        Requires user authorization
         '''
 
        # Set the necessary parameters
@@ -50,9 +56,9 @@ class OrcidAuthentication:
 
         # Step 1: Redirect the user to the authorization URL
         params = {
-            'client_id': client_id,
+            'client_id': self.__client_id,
             'response_type': 'code',
-            'redirect_uri': redirect_uri,
+            'redirect_uri': self.__redirect_uri,
             'scope': '/authenticate'
         }
         auth_url = auth_url_endpoint + '?' + urlencode(params)
@@ -64,11 +70,11 @@ class OrcidAuthentication:
 
         # Step 3: Exchange the authorization code for an access token
         data = {
-            'client_id': client_id,
-            'client_secret': client_secret,
+            'client_id': self.__client_id,
+            'client_secret': self.__client_secret,
             'code': code,
             'grant_type': 'authorization_code',
-            'redirect_uri': redirect_uri
+            'redirect_uri': self.__redirect_uri
         }
 
         response = requests.post(token_url, data=data)
@@ -76,7 +82,35 @@ class OrcidAuthentication:
         # set_key(".env", "ORCID_ACCESS_TOKEN", access_token)
         return access_token
     
-    def save_credentials(client_id, client_secret, redirect_uri, access_token):
+    def __get_read_public_token(self):
+        """
+        This method gets token for reading public data (/read-public scope) from Orcid.
+        Doesnt' require user authentication 
+        return: access token
+        """
+        scope='/read-public'
+        token_url = "https://orcid.org/oauth/token"
+        params = {
+            'client_id': self.__client_id,
+            'client_secret': self.__client_secret,
+            'scope': scope,
+            'grant_type': 'client_credentials'
+        }
+        headers = {'Accept': 'application/json'}
+
+        try:
+            response = requests.post(token_url, data=params, headers=headers)
+            # # Raises an exception for HTTP errors
+            response.raise_for_status() 
+
+            access_token = response.json().get('access_token')
+            return access_token
+
+        except requests.exceptions.RequestException as e:
+            print(f"Error during token retrieval: {e}")
+            return None
+        
+    def save_credentials(self, access_token):
         '''
         Save the credentials and access token to a file
         '''
@@ -91,9 +125,9 @@ class OrcidAuthentication:
             if confirmation == 'y':
                 # Save credentials and access token to a file
                 with open('orcid_credentials.env', 'w') as file:
-                    file.write(f'CLIENT_ID={client_id}\n')
-                    file.write(f'CLIENT_SECRET={client_secret}\n')
-                    file.write(f'REDIRECT_URI={redirect_uri}\n')
+                    file.write(f'CLIENT_ID={self.__client_id}\n')
+                    file.write(f'CLIENT_SECRET={self.__client_secret}\n')
+                    file.write(f'REDIRECT_URI={self.__redirect_uri}\n')
                     file.write(f'ACCESS_TOKEN={access_token}\n')
                 print("Credentials and access token saved.")
             else:

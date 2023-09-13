@@ -59,6 +59,7 @@ class Orcid():
         else:
             # The request failed, indicating that the token may have expired or is invalid
             return True
+    
         
     def __read_section(self,section="record"):
         '''
