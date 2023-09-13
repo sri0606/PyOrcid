@@ -25,22 +25,8 @@ class OrcidAuthentication:
         self.__redirect_uri = redirect_uri
         return None
     
-    def get_access_token(self):
-        '''
-        Send a request to Orcid's OAuth 2.0 authorization
-        return : access token
-        '''
-        if self.__redirect_uri=="" or self.__redirect_uri is None:
-            access_token = self.__get_read_public_token()
-            
-        else:
-            if access_token:
-                access_token = self._get_access_token()
-                print("For future use, please ensure that access_token is retained to access the ORCID record of the user who granted access, including their ORCID_ID. Failure to do so require the user to re-authorize access.")
-
-        return access_token
     
-    def _get_private_token(self):
+    def get_private_access_token(self):
         '''
         Send a request for Orcid's OAuth 2.0 authorrization
         This method is used for Member API (read/update) and Public API's /read-limited scope
@@ -82,7 +68,7 @@ class OrcidAuthentication:
         # set_key(".env", "ORCID_ACCESS_TOKEN", access_token)
         return access_token
     
-    def __get_read_public_token(self):
+    def get_public_access_token(self):
         """
         This method gets token for reading public data (/read-public scope) from Orcid.
         Doesnt' require user authentication 
