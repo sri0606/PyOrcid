@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [1.1.1] - 09/12/2023
+
+### Fixed
+- Fixed the bug that caused pip install to fail (removed json from dependency lista s it is pre-installed through python package)
+
 ## [1.1.0] - 09/11/2023
 
 ### Added
