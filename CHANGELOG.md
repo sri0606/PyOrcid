@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 09/13/2023
+
+### Added
+- Added functionality for OrcidAuthentication to not require user authorization if reading public-access data.
+
 ## [1.1.1] - 09/12/2023
 
 ### Fixed
