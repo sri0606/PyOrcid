@@ -31,7 +31,7 @@ pip install PyOrcid
 
 2. [Access through OrcidScrapper feature of PyOrcid](#access-through-orcidscrapper-feature-of-pyorcid)
 
-   You will only get to read the public Orcid records. This is the simplest and quickest way and doesn't require any authorization.
+   You will only get to read the public Orcid records. This is simplest way and an alternative to using API. Doesn't require any authorization.
    
    You will need:
      - Orcid ID of the reasearcher/user(for reading data)
@@ -60,18 +60,37 @@ More detailed steps mentioned [here](https://info.orcid.org/ufaqs/how-do-i-regis
 
 ### 2. After registering your application
 
-Users can now authorize your application. Pass the necessary details to them and let them execute follow command.
-
-By executing following code, the user will be redirected to orcid authorization page. Once the user authorizes your application, they will be redirected to "redirected_uri" you registered. After copy/pasting full URL of redirected page (contains special code), access token will be shown in output. Please save it for future use or else the application has to be authorized everytime.
+You need to get an access token. Getting an access-token depends on whether a method/scope require user authorization.
 
 Get the `client_id`, `client_secret` and `redirect_uri` details from your [registered application](https://orcid.org/developer-tools).
 
+#### a) For reading public-access data of a public profile 
+
+By executing following code, you will get an access-token to read (publid-access) data of a public profile. This doesn't require user authorization. Don't need to provide any value for redirect_uri.
+
+**You can use this token to access any number of public profiles.**
+```python
+from pyorcid import OrcidAuthentication
+
+# redirect_uri  is not required
+orcid_auth = OrcidAuthentication(client_id="APP-xxxxxxxx", client_secret="xx-xx-xxxx-xxx")
+
+access_token = orcid_auth.get_public_access_token()
+```
+
+#### b) For Member API or reading limited-access data of public profile
+By executing following code, the user will be redirected to orcid authorization page. Once the user authorizes your application, they will be redirected to "redirected_uri" you registered. Copy and paste the full URL of redirected page (contains special code) in terminal. Please save it for future use or else the application has to be authorized everytime.
+
+**This token is exclusively for the user who granted access.**
 ```python
 from pyorcid import OrcidAuthentication
 
 # Authenticate your application 
 # Any valid user can authorize your application by running the following command 
-OrcidAuthentication(client_id="APP-xxxxxxxx", client_secret="xx-xx-xxxx-xxx", redirect_uri="https://github.com/user")
+orcid_auth = OrcidAuthentication(client_id="APP-xxxxxxxx", client_secret="xx-xx-xxxx-xxx",      
+                                 redirect_uri="https://github.com/user")
+
+access_token = orcid_auth.get_private_access_token()
 ```
 
 **Executing this line of code:**
@@ -88,7 +107,9 @@ from pyorcid import Orcid
 
 #Orcid ID of the user
 orcid_id = 'xxxx-xxxx-xxxx-xxxx'
-access_token = "xxxx-xxxxxxxxxxx-xxxxxxx-xxx"
+
+#this is the access token obtained either of above auth methods
+access_token = "xxxx-xxxxxxxxxxx-xxxxxxx-xxx" 
 #create an instance of the Orcid class
 # state defines which ORCID API you want to use: public or member
 orcid = Orcid(orcid_id=orcid_id, orcid_access_token=access_token, state = "public")
