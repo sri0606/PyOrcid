@@ -16,9 +16,6 @@ class OrcidAuthentication:
         client_secret : str : client secret obtained from the registered application
         redirect_uri : str : redirect uri obtained from the registered application
 
-        returns :
-        1) if redirect_uri id None/empty, returns access token for methods that doesn't need user authorization (eg., /read-public scope of public API)
-        2) else, returns access token for methods that needs user authorization (eg., Member API or /read-limited scope of public API)
         '''
         self.__client_id = client_id
         self.__client_secret = client_secret
