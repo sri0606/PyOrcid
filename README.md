@@ -133,7 +133,7 @@ OrcidScrapper can access all methods of Orcid class as it is inherited from it.
 
 ```python
 from src import pyorcid
-orcid_id = '0000-0003-0666-9883'
+orcid_id = 'xxxx-xxxx-xxxx-xxxx'
 orcid = pyorcid.OrcidScrapper(orcid_id=orcid_id)
 orcid.__dir__()
 ```
