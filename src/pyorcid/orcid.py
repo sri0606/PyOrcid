@@ -1,6 +1,7 @@
 import requests
 from dotenv import load_dotenv
 import os
+from datetime import datetime
 
 class Orcid():
     '''
@@ -97,6 +98,44 @@ class Orcid():
             # Handle the case where the request failed
             print("Failed to retrieve ORCID data. Status code:", response.status_code)
             return None
+        
+    def __timestamp_to_iso_date(self, timestamp):
+        '''
+        Converts a timestamp to an ISO date string
+        return : ISO date string
+        '''
+        try:
+            # Check if timestamp is a valid number
+            timestamp = float(timestamp)
+        except ValueError:
+            raise ValueError("Error: Invalid timestamp")
+
+        try:
+            # Convert the timestamp to seconds (from milliseconds if necessary)
+            if timestamp > 1e10:  # timestamp is likely in milliseconds
+                timestamp /= 1000
+
+            # Create a datetime object from the timestamp
+            dt = datetime.fromtimestamp(timestamp)
+
+            # Convert the datetime object to an ISO 8601 string
+            iso8601 = dt.isoformat()
+            return iso8601
+        except Exception as e:
+            raise ValueError(f"Error: {e}")
+        
+    def __deunicode_string(self, s):
+        '''
+        Removes non-ASCII characters from a string
+        return : a string with only ASCII characters
+        '''
+        try:
+            # Check if string contains any non-ASCII characters
+            s.encode('ascii')
+        except UnicodeEncodeError:
+            # String contains non-ASCII characters, remove them
+            s = s.encode('ascii', 'ignore').decode('ascii')
+        return s
 
     def record(self):
         '''
@@ -228,7 +267,7 @@ class Orcid():
                 start_date  = self.get_formatted_date(fund_summary.get('start-date', {}))
                 end_date    = self.get_formatted_date(fund_summary.get('end-date', {}))
                 organization= self.__get_value_from_keys(fund_summary,["organization","name"])
-                organization_address = ', '.join(filter(None, self.__get_value_from_keys(fund_summary, ["organization", "address"]).values())) if self.__get_value_from_keys(fund_summary, ["organization", "address"]) is not None else ''
+                organization_address = self.__org_string_from_obj(self.__get_value_from_keys(fund_summary, ["organization", "address"]))
                 url         = self.__get_value_from_keys(fund_summary,["url","value"])
 
                 funding_detail = {
@@ -271,7 +310,7 @@ class Orcid():
                 publication_date= self.get_formatted_date(work_summary.get('publication-date', {}))
                 journal_title   = self.__get_value_from_keys(work_summary,["journal-title","value"])
                 organization    = self.__get_value_from_keys(work_summary,["organization","name"])
-                organization_address = ', '.join(filter(None, self.__get_value_from_keys(work_summary, ["organization", "address"]).values())) if self.__get_value_from_keys(work_summary, ["organization", "address"]) is not None else ''
+                organization_address = self.__org_string_from_obj(self.__get_value_from_keys(work_summary, ["organization", "address"]))
                 url             = self.__get_value_from_keys(work_summary,["url","value"])
 
                 work_detail = {
@@ -411,6 +450,8 @@ class Orcid():
             current_obj = json_obj
             for key in keys:
                 current_obj = current_obj[key]
+            if isinstance(current_obj, str):
+                current_obj = self.__deunicode_string(current_obj)
             return current_obj
         else:
             return None
@@ -434,7 +475,10 @@ class Orcid():
                 start_date  = self.get_formatted_date(key_summary.get('start-date', {}))
                 end_date    = self.get_formatted_date(key_summary.get('end-date', {}))
                 organization = self.__get_value_from_keys(key_summary,["organization","name"])
-                organization_address = ', '.join(filter(None, self.__get_value_from_keys(key_summary, ["organization", "address"]).values())) if self.__get_value_from_keys(key_summary, ["organization", "address"]) is not None else ''
+                
+                # Extract the organization address components into a string
+                organization_address = self.__org_string_from_obj(self.__get_value_from_keys(key_summary, ["organization", "address"]))
+
                 url  = self.__get_value_from_keys(key_summary,["url","value"])
                 detail = {
                     'Department': department,
@@ -449,6 +493,21 @@ class Orcid():
                 details.append(detail)
         
         return details
+    
+    def __org_string_from_obj(self, org_obj):
+        '''
+        Helper function for record_summary()
+        '''
+        org_string = ''
+        if not isinstance(org_obj, dict):
+            return org_string
+
+        # Build a string from the organization components without unicode characters
+        org_parts = filter(None, org_obj.values())
+        if org_parts is not None:
+            org_string = ', '.join([self.__deunicode_string(i) for i in org_parts])
+        
+        return org_string
 
 
     def record_summary(self):
@@ -458,6 +517,8 @@ class Orcid():
         '''
         data = self.record()
         extracted_data = {
+            'ORCiD ID': self._orcid_id,
+            'Last Modified': self.__timestamp_to_iso_date(self.__get_value_from_keys(data,["history","last-modified-date","value"])),
             'Name': self.__get_value_from_keys(data,["person","name","given-names","value"]),
             'Family Name': self.__get_value_from_keys(data,["person","name","family-name","value"]),
             'Credit Name': self.__get_value_from_keys(data,["person","name","credit-name","value"]),
