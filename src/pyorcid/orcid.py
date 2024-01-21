@@ -161,7 +161,7 @@ class Orcid():
      
     def other_names(self):
         '''
-        Other names by which the researcher is know
+        Other names by which the researcher is known
         return  :
         '''
         return self.__read_section("other-names") 
@@ -396,7 +396,7 @@ class Orcid():
 
         return True
 
-    def __get_value_from_keys(self,json_obj, keys):
+    def __get_value_from_keys(self, json_obj, keys):
         """
         Get the value associated with the last key in the list if all keys are accessible cumulatively.
 
@@ -459,6 +459,9 @@ class Orcid():
         data = self.record()
         extracted_data = {
             'Name': self.__get_value_from_keys(data,["person","name","given-names","value"]),
+            'Family Name': self.__get_value_from_keys(data,["person","name","family-name","value"]),
+            'Credit Name': self.__get_value_from_keys(data,["person","name","credit-name","value"]),
+            'Other Names': [name['content'] for name in self.__get_value_from_keys(data,["person","other-names","other-name"])],
             'Biography': self.__get_value_from_keys(data,["person","biography","content"]),
             'Emails': [email['email'] for email in self.__get_value_from_keys(data,["person","emails","email"])],
             'Research Tags (keywords)': [keyword['content'] for keyword in self.__get_value_from_keys(data,["person","keywords","keyword"])],
