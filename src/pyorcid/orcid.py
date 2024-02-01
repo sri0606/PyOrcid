@@ -7,7 +7,7 @@ class Orcid():
     '''
     This is a wrapper class for ORCID API
     '''
-    def __init__(self,orcid_id, orcid_access_token = " ", state="public") -> None:
+    def __init__(self,orcid_id, orcid_access_token = " ", state="public", sandbox=False) -> None:
         '''
         Initialize orcid instance
         orcid_id : Orcid ID of the user
@@ -17,6 +17,7 @@ class Orcid():
         self._orcid_id = orcid_id
         self._orcid_access_token = orcid_access_token
         self._state = state
+        self._sandbox = sandbox
         #For testing purposes (pytesting on github workflow)
         if orcid_access_token!=" ":
             try:
@@ -45,12 +46,14 @@ class Orcid():
 
         if self._state == "public":
             # Specify the ORCID record endpoint for the desired ORCID iD
-            # api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
             api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}'
+            if(self._sandbox):
+                api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
 
         elif self._state == "member":
-            # api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
             api_url = f'https://api.orcid.org/v3.0/{self._orcid_id}'
+            if(self._sandbox):
+                api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
 
         response = requests.get(api_url, headers=headers)
 
@@ -79,12 +82,15 @@ class Orcid():
 
         if self._state == "public":
             # Specify the ORCID record endpoint for the desired ORCID iD
-            # api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
             api_url = f'https://pub.orcid.org/v3.0/{self._orcid_id}/{section}'
+            if(self._sandbox):
+                api_url = f'https://pub.sandbox.orcid.org/v3.0/{self._orcid_id}/{section}'  #for testing
 
         elif self._state == "member":
-            # api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}'  #for testing
             api_url = f'https://api.orcid.org/v3.0/{self._orcid_id}/{section}'
+            if(self._sandbox):
+                api_url = f'https://api.sandbox.orcid.org/v3.0/{self._orcid_id}/{section}'  #for testing
+
 
         # Make a GET request to retrieve the ORCID record
         response = requests.get(api_url, headers=headers)
