@@ -7,7 +7,7 @@ class OrcidAuthentication:
     The Orcid's OAuth 2.0 authorrization is used to access the ORCID record of the user that gave access.
     
     '''
-    def __init__(self, client_id, client_secret, redirect_uri=""):
+    def __init__(self, client_id, client_secret, redirect_uri="", sandbox=False):
         '''
         initializes the ORCidAuthentication and gets the access token
         Parameters
@@ -15,11 +15,13 @@ class OrcidAuthentication:
         client_id : str : client id obtained from the registered application
         client_secret : str : client secret obtained from the registered application
         redirect_uri : str : redirect uri obtained from the registered application
+        sandbox : str : a boolean value to show if the ORCID sandbox API should be used (default: False)
 
         '''
         self.__client_id = client_id
         self.__client_secret = client_secret
         self.__redirect_uri = redirect_uri
+        self.__sandbox = sandbox
         return None
     
     
@@ -30,12 +32,13 @@ class OrcidAuthentication:
         Requires user authorization
         '''
 
-       # Set the necessary parameters
-        # auth_url_endpoint = "https://sandbox.orcid.org/oauth/authorize"   #for testing
-        # token_url = "https://sandbox.orcid.org/oauth/token"               #for testing
-
+        # Set the necessary parameters
         auth_url_endpoint = "https://orcid.org/oauth/authorize"
         token_url = "https://orcid.org/oauth/token"
+
+        if(self.__sandbox):
+            auth_url_endpoint = "https://sandbox.orcid.org/oauth/authorize"
+            token_url = "https://sandbox.orcid.org/oauth/token"
 
         # Step 1: Redirect the user to the authorization URL
         params = {
@@ -73,6 +76,10 @@ class OrcidAuthentication:
         """
         scope='/read-public'
         token_url = "https://orcid.org/oauth/token"
+        
+        if(self.__sandbox):
+            token_url = "https://sandbox.orcid.org/oauth/token"
+
         params = {
             'client_id': self.__client_id,
             'client_secret': self.__client_secret,
