@@ -15,7 +15,7 @@ class OrcidAuthentication:
         client_id : str : client id obtained from the registered application
         client_secret : str : client secret obtained from the registered application
         redirect_uri : str : redirect uri obtained from the registered application
-        sandbox : str : a boolean value to show if the ORCID sandbox API should be used (default: False)
+        sandbox : bool : a boolean value to show if the ORCID sandbox API should be used (default: False)
 
         '''
         self.__client_id = client_id
