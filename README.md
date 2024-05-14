@@ -126,7 +126,13 @@ for key, value in works_data.items():
 # Generate a markdown file with the summary of various section's data
 orcid.generate_markdown_file(output_file = "md_generator_example.md")
 ```
-
+#### Searching ORCID records
+```python
+from pyorcid import OrcidSearch
+#search through ORCID records, for details on the query format see https://info.orcid.org/documentation/api-tutorials/api-tutorial-searching-the-orcid-registry/  
+orcidSearch = OrcidSearch(orcid_access_token=access_token)
+orcidSearch.search("John Smith")
+```
 ## Access through OrcidScrapper feature of PyOrcid
 This is an alternative to Orcid API. You can only read the orcid profiles on public database. All you need is the Orcid ID of the researchers you wish to retrieve.
 OrcidScrapper can access all methods of Orcid class as it is inherited from it.
