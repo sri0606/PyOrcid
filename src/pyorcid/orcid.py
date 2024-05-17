@@ -13,6 +13,7 @@ class Orcid():
         orcid_id : Orcid ID of the user
         orcid_access_token : Orcid access token obtained from the user with this orcid_id
         state  : Whether to use public or member API of ORCID
+        sandbox : a boolean value to show if the ORCID sandbox API should be used (default: False)
         '''
         self._orcid_id = orcid_id
         self._orcid_access_token = orcid_access_token
