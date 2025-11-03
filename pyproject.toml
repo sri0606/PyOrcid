@@ -18,11 +18,15 @@ classifiers = [
 keywords = ["orcid", "orcid-api", "pyorcid"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.9"
 python-dotenv = "*"
 urllib3 = "^1.26.7"
 requests = "^2.26.0"
-xmltojson = "*"
+xmltodict = "*"
+certifi = ">=2024.0.0"
 
-[tool.poetry.dev-dependencies]
-pytest = "^7.0.0"
+[dependency-groups]
+dev = [
+    "pytest (>=8.4.2,<9.0.0)",
+    "flake8 (>=7.0.0,<8.0.0)"
+]
