@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "PyOrcid"
-version = "1.2.0"
+version = "1.2.1"
 license = "MIT"
 description = "API client for ORCID API"
 readme = "README.md"
@@ -26,7 +26,4 @@ xmltodict = "*"
 certifi = ">=2024.0.0"
 
 [dependency-groups]
-dev = [
-    "pytest (>=8.4.2,<9.0.0)",
-    "flake8 (>=7.0.0,<8.0.0)"
-]
+dev = ["pytest (>=8.4.2,<9.0.0)", "flake8 (>=7.0.0,<8.0.0)"]

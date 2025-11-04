@@ -133,14 +133,24 @@ class Orcid:
             response.raise_for_status()
             return response.json()
         except requests.HTTPError as e:
-            logger.error(f"Failed to retrieve ORCID data. Status code: {e.response.status_code}")
-            return None
+            if e.response.status_code in (401, 403):
+                logger.error(
+                    f"Authentication failed for ORCID section '{section}': "
+                    f"{e.response.status_code} {e.response.text}"
+                )
+                raise
+            logger.warning(
+                f"Failed to retrieve ORCID section '{section}': "
+                f"{e.response.status_code} {e.response.text}"
+            )
+            return {}
+
         except requests.RequestException as e:
             logger.error(f"Request failed: {e}")
-            return None
+            return {}
         except ValueError as e:
             logger.error(f"Failed to parse JSON response: {e}")
-            return None
+            return {}
 
     def __timestamp_to_iso_date(self, timestamp):
         '''
