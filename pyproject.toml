@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "PyOrcid"
-version = "1.2.1"
+version = "1.2.2"
 license = "MIT"
 description = "API client for ORCID API"
 readme = "README.md"
@@ -20,8 +20,8 @@ keywords = ["orcid", "orcid-api", "pyorcid"]
 [tool.poetry.dependencies]
 python = ">=3.9"
 python-dotenv = "*"
-urllib3 = "^1.26.7"
-requests = "^2.26.0"
+urllib3 = ">=1.26.7,<3.0.0"
+requests = ">=2.26.0,<3.0.0"
 xmltodict = "*"
 certifi = ">=2024.0.0"
 

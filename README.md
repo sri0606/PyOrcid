@@ -146,8 +146,8 @@ orcid.__dir__()
 ```
 ```
 works_data = orcid.works()[0]
-for key, value in works_data.items():
-    print(key, value)
+for work_obj in works_data:
+    print(work_obj)
 
 orcid.record_summary()
 
