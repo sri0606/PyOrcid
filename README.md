@@ -118,8 +118,9 @@ orcid.__dir__()
 ```python
 # Get the information of user's works from their ORCID profile
 works_data = orcid.works()[0]
-for key, value in works_data.items():
-    print(key, value)
+for work in works_data:
+   for key, value in work.items():
+       print(key, value)
 ```
 ```python
 

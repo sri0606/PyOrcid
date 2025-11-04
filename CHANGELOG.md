@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.2.1] - 11/03/2025
+
+### Changed
+- Dependencies updated; xmltojson removed in favor of xmltodict for broader compatibility. Now using an up-to-date certifi.
+- Moved dependency management to Poetry to better suit our needs.
+- Refactored using Claude to standardize linting, comments, add logging, and type hints.
 
 ## [1.2.0] - 05/17/2024
 
